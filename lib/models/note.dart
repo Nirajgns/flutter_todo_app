@@ -23,7 +23,7 @@ class Note {
       "userid": userid,
       "title": title,
       "content": content,
-      "dateadded": dateadded!.toIso8601String();
+      "dateadded": dateadded!.toIso8601String(),
     };
   }
 }
