@@ -1,6 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
+import 'package:todo_app/models/note.dart';
+import 'package:todo_app/providers/notes_provoder.dart';
+import 'package:uuid/uuid.dart';
 
 class AddNewNotePage extends StatefulWidget {
   const AddNewNotePage({super.key});
@@ -10,14 +12,35 @@ class AddNewNotePage extends StatefulWidget {
 }
 
 class _AddNewNotePageState extends State<AddNewNotePage> {
-  FocusNode noteFocus = FocusNode();
+  FocusNode contentFocus = FocusNode();
   FocusNode titleFocus = FocusNode();
+
+  TextEditingController titleController = TextEditingController();
+  TextEditingController contentController = TextEditingController();
+
+  void addNewNote() {
+    Note newNote = Note(
+      id: const Uuid().v1(),
+      userid: "niraj",
+      title: titleController.text,
+      content: contentController.text,
+      dateadded: DateTime.now(),
+    );
+    Provider.of<NotesProvider>(context, listen: false).addNote(newNote);
+    Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.check))],
+        actions: [
+          IconButton(
+              onPressed: () {
+                addNewNote();
+              },
+              icon: const Icon(Icons.check))
+        ],
         centerTitle: true,
         title: const Text("Add new note..."),
       ),
@@ -26,9 +49,10 @@ class _AddNewNotePageState extends State<AddNewNotePage> {
         child: Column(
           children: [
             TextField(
+              controller: titleController,
               onSubmitted: (value) {
                 if (value != "") {
-                  noteFocus.requestFocus();
+                  contentFocus.requestFocus();
                 } else {
                   titleFocus.requestFocus();
                 }
@@ -44,11 +68,13 @@ class _AddNewNotePageState extends State<AddNewNotePage> {
             const SizedBox(height: 10),
             Expanded(
               child: TextField(
-                focusNode: noteFocus,
+                maxLines: null,
+                controller: contentController,
+                focusNode: contentFocus,
                 decoration: const InputDecoration(
                     border: InputBorder.none,
-                    label: Text("Note"),
-                    hintText: "Enter your note here..."),
+                    label: Text("Note Content"),
+                    hintText: "Enter your note content here..."),
               ),
             )
           ],
