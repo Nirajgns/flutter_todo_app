@@ -39,9 +39,15 @@ class HomeScreen extends StatelessWidget {
                   Text(
                     currentNote.title!,
                     style: const TextStyle(fontSize: 20),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8),
-                  Text(currentNote.content!)
+                  Text(
+                    currentNote.content!,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 5,
+                  )
                 ],
               ),
             );
