@@ -45,7 +45,7 @@ class _AddNewNotePageState extends State<AddNewNotePage> {
     super.initState();
     if (widget.isUpdate) {
       titleController.text = widget.note!.title!;
-      contentController.text = widget.note!.title!;
+      contentController.text = widget.note!.content!;
     }
   }
 
