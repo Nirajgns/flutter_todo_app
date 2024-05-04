@@ -5,7 +5,9 @@ import 'package:todo_app/providers/notes_provoder.dart';
 import 'package:uuid/uuid.dart';
 
 class AddNewNotePage extends StatefulWidget {
-  const AddNewNotePage({super.key});
+  final bool isUpdate;
+  final Note? note;
+  const AddNewNotePage({super.key, required this.isUpdate, this.note});
 
   @override
   State<AddNewNotePage> createState() => _AddNewNotePageState();
@@ -30,6 +32,23 @@ class _AddNewNotePageState extends State<AddNewNotePage> {
     Navigator.pop(context);
   }
 
+  void updateNote() {
+    widget.note!.title = titleController.text;
+    widget.note!.content = contentController.text;
+
+    Provider.of<NotesProvider>(context, listen: false).updateNote(widget.note!);
+    Navigator.pop(context);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isUpdate) {
+      titleController.text = widget.note!.title!;
+      contentController.text = widget.note!.title!;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,12 +56,12 @@ class _AddNewNotePageState extends State<AddNewNotePage> {
         actions: [
           IconButton(
               onPressed: () {
-                addNewNote();
+                widget.isUpdate ? updateNote() : addNewNote();
               },
               icon: const Icon(Icons.check))
         ],
         centerTitle: true,
-        title: const Text("Add new note..."),
+        title: Text(widget.isUpdate ? "Update note" : "Add note"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
@@ -57,7 +76,7 @@ class _AddNewNotePageState extends State<AddNewNotePage> {
                   titleFocus.requestFocus();
                 }
               },
-              autofocus: true,
+              autofocus: widget.isUpdate ? false : true,
               focusNode: titleFocus,
               style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
               decoration: const InputDecoration(

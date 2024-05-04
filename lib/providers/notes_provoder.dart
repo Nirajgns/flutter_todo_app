@@ -6,9 +6,18 @@ class NotesProvider with ChangeNotifier {
 
   void addNote(Note note) {
     notes.add(note);
+    notifyListeners();
   }
 
-  void deleteNote(Note note) {}
+  void updateNote(Note note) {
+    int indexOfNote =
+        notes.indexOf(notes.firstWhere((element) => element.id == note.id));
+    notes[indexOfNote] = note;
+    notifyListeners();
+  }
 
-  void updateNote() {}
+  void deleteNote(Note note) {
+    notes.removeWhere((element) => element.id == note.id);
+    notifyListeners();
+  }
 }
