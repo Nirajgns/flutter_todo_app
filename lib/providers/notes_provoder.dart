@@ -22,6 +22,14 @@ class NotesProvider with ChangeNotifier {
     ApiService.addNote(note);
   }
 
+  List<Note> getFilteredNotes(String searchQuery) {
+    return notes
+        .where((element) =>
+            element.title!.toLowerCase().contains(searchQuery.toLowerCase()) ||
+            element.content!.toLowerCase().contains(searchQuery.toLowerCase()))
+        .toList();
+  }
+
   void updateNote(Note note) {
     int indexOfNote =
         notes.indexOf(notes.firstWhere((element) => element.id == note.id));

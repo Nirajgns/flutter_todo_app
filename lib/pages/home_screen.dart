@@ -5,8 +5,15 @@ import 'package:todo_app/models/note.dart';
 import 'package:todo_app/pages/add_new_note.dart';
 import 'package:todo_app/providers/notes_provoder.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String searchQuery = "";
 
   @override
   Widget build(BuildContext context) {
@@ -20,58 +27,102 @@ class HomeScreen extends StatelessWidget {
       body: (notesProvider.isLoading == false)
           ? SafeArea(
               child: (notesProvider.notes.isNotEmpty)
-                  ? GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2),
-                      itemCount: notesProvider.notes.length,
-                      itemBuilder: (context, index) {
-                        Note currentNote = notesProvider.notes[index];
+                  ? ListView(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: TextField(
+                            onChanged: (value) {
+                              setState(() {
+                                searchQuery = value;
+                              });
+                            },
+                            decoration: const InputDecoration(
+                                prefixIcon: Icon(Icons.search),
+                                enabledBorder: OutlineInputBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(10))),
+                                focusedBorder: OutlineInputBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(10))),
+                                hintText: "Search your notes...",
+                                labelText: "Search"),
+                          ),
+                        ),
+                        (notesProvider.getFilteredNotes(searchQuery).length > 0)
+                            ? GridView.builder(
+                                physics: const NeverScrollableScrollPhysics(),
+                                shrinkWrap: true,
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 2),
+                                itemCount: notesProvider
+                                    .getFilteredNotes(searchQuery)
+                                    .length,
+                                itemBuilder: (context, index) {
+                                  Note currentNote = notesProvider
+                                      .getFilteredNotes(searchQuery)[index];
 
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AddNewNotePage(
-                                  isUpdate: true,
-                                  note: currentNote,
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => AddNewNotePage(
+                                            isUpdate: true,
+                                            note: currentNote,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    onLongPress: () {
+                                      //deletes note
+                                      notesProvider.deleteNote(currentNote);
+                                    },
+                                    child: Container(
+                                      margin: const EdgeInsets.all(5),
+                                      padding: const EdgeInsets.all(8.0),
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                          border: Border.all(
+                                            color: Colors.grey,
+                                          )),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            currentNote.title!,
+                                            style:
+                                                const TextStyle(fontSize: 20),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            currentNote.content!,
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 5,
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              )
+                            : const Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(50),
+                                  child: Text(
+                                    "No notes found...",
+                                    style: TextStyle(
+                                      fontSize: 25,
+                                    ),
+                                  ),
                                 ),
                               ),
-                            );
-                          },
-                          onLongPress: () {
-                            //deletes note
-                            notesProvider.deleteNote(currentNote);
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.all(5),
-                            padding: const EdgeInsets.all(8.0),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15),
-                                border: Border.all(
-                                  color: Colors.grey,
-                                )),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  currentNote.title!,
-                                  style: const TextStyle(fontSize: 20),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  currentNote.content!,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 5,
-                                )
-                              ],
-                            ),
-                          ),
-                        );
-                      },
+                      ],
                     )
                   : const Center(
                       child: Text(
@@ -82,7 +133,17 @@ class HomeScreen extends StatelessWidget {
                     ),
             )
           : const Center(
-              child: CircularProgressIndicator(),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  Text(
+                    "We are loading your notes...",
+                    style: TextStyle(fontSize: 30),
+                    textAlign: TextAlign.center,
+                  )
+                ],
+              ),
             ),
       floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
